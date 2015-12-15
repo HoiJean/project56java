@@ -11,7 +11,7 @@ import java.util.ArrayList;
  */
 public class CsvParser {
 
-    protected final String csvSplitBy = ";";
+    protected final String SPLIT_BY = ";";
 
     public ArrayList<String[]> parseCSV(String csvFile)
     {
@@ -30,7 +30,7 @@ public class CsvParser {
 
             while ( (line = bufferedReader.readLine()) != null)
             {
-                data = line.split(csvSplitBy);
+                data = line.split(SPLIT_BY);
 
                 output.add(data);
             }
