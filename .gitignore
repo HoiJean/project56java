@@ -13,10 +13,10 @@
 # .idea/tasks.xml
 # .idea/dictionaries
 
-/Monitoring.csv
-/Events.csv
-/Connections.csv
-/Positions.csv
+Monitoring.csv
+Events.csv
+Connections.csv
+Positions.csv
 # Sensitive or high-churn files:
 # .idea/dataSources.ids
 # .idea/dataSources.xml
