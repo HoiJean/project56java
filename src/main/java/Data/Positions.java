@@ -1,6 +1,7 @@
 package Data;
 
 import Contract.CsvParseable;
+import Parsers.CsvParser;
 
 import java.util.ArrayList;
 
@@ -14,11 +15,9 @@ public class Positions implements CsvParseable {
     }
 
     public ArrayList<String[]> parseline() {
-        return null;
-    }
+        ArrayList<String[]> parsedLines = new CsvParser().parseCSV(getFile());
 
-    public ArrayList<String[]> parseline(int lineNumber) {
-        return null;
+        return parsedLines;
     }
 
     public void insert() {
