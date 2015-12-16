@@ -21,4 +21,21 @@ public class DateHelper {
 
         return mydatetime;
     }
+
+    public static LocalDateTime CombineDateAndTime(String datetime)
+    {
+        String[] splitedDate = datetime.split(" ");
+        String date = splitedDate[0];
+        String time = splitedDate[1];
+
+        LocalDate localDate = LocalDate.parse(date);
+        LocalTime localTime = LocalTime.parse(time);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("YYY-MM-dd H:m:s");
+
+        LocalDateTime mydatetime = LocalDateTime.of(localDate, localTime);
+
+        return mydatetime;
+
+    }
 }
