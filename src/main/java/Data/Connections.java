@@ -17,7 +17,8 @@ import java.util.ArrayList;
  */
 public class Connections implements CsvParseable {
 
-    private String filename = "Connections.csv";
+    protected String filename = "Connections.csv";
+    protected String tablename = "connections";
 
     // Connection csv data positions
     private final int DATE_POSITION = 0;
@@ -54,7 +55,7 @@ public class Connections implements CsvParseable {
 
         }
 
-        System.out.println("Connections insert Process complete!");
+        System.out.println( tablename.toUpperCase() + " insert Process complete!");
 
     }
 
@@ -73,7 +74,7 @@ public class Connections implements CsvParseable {
         {
             con = Database.getMysqlConnection();
 
-            String query = "INSERT INTO connections(datetime, port, value, unit_id) values(?, ?, ?, ?)";
+            String query = "INSERT INTO " + tablename + " (datetime, port, value, unit_id) values(?, ?, ?, ?)";
 
             PreparedStatement preparedStatement = con.prepareStatement(query);
             preparedStatement.setTimestamp(1, Timestamp.valueOf(datetime));
