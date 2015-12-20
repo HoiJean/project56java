@@ -18,13 +18,39 @@ import java.util.ArrayList;
 public class Connections implements CsvParseable {
 
     protected String filename = "Connections.csv";
+
     protected String tablename = "connections";
 
-    // Connection csv data positions
+    // Connections/events csv data positions
     private final int DATE_POSITION = 0;
     private final int VALUE_POSITION = 3;
     private final int PORT_POSITION = 2;
     private final int UNITID_POSITION = 1;
+
+    public Connections() {
+
+    }
+
+    public Connections(String filename, String tablename) {
+        this.filename = filename;
+        this.tablename = tablename;
+    }
+
+    public String getFilename() {
+        return filename;
+    }
+
+    public void setFilename(String filename) {
+        this.filename = filename;
+    }
+
+    public String getTablename() {
+        return tablename;
+    }
+
+    public void setTablename(String tablename) {
+        this.tablename = tablename;
+    }
 
     public String getFile() {
         return filename;

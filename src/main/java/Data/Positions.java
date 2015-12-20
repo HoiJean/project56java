@@ -41,8 +41,7 @@ public class Positions implements CsvParseable {
     }
 
     public void insert() {
-//        for(int i=1; i < parseline().size(); i++)
-        for(int i=1; i < 3; i++)
+        for(int i=1; i < parseline().size(); i++)
         {
             String[] line = parseline().get(i);
 

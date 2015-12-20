@@ -42,6 +42,7 @@ CREATE TABLE IF NOT EXISTS `events` (
 DROP TABLE IF EXISTS `monitoring`;
 CREATE TABLE IF NOT EXISTS `monitoring` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `unit_id` bigint(20) DEFAULT NULL,
   `begin_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `end_time` datetime NOT NULL DEFAULT '0000-00-00 00:00:00',
   `type` varchar(100) NOT NULL DEFAULT '0',
