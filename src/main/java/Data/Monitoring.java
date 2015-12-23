@@ -15,11 +15,13 @@ import java.util.ArrayList;
 /**
  * Created by Jean on 19-12-2015.
  */
-public class Monitoring implements CsvParseable {
+public class Monitoring implements CsvParseable, Runnable {
 
     protected String filename = "Monitoring.csv";
 
     protected String tablename = "monitoring";
+
+    private Thread thread;
 
     // monitoring csv data positions
     private final int UNITID_POSITION = 0;
@@ -41,33 +43,6 @@ public class Monitoring implements CsvParseable {
     }
 
     /**
-     * Bulk insert
-     * @throws SQLException
-     */
-    public void insert() throws SQLException {
-
-        for(int i=1; i < parseline().size(); i++)
-        {
-            String[] line = parseline().get(i);
-            long unitid = Long.parseLong(line[UNITID_POSITION]);
-
-            LocalDateTime begintime = DateHelper.CombineDateAndTime(line[BEGINTIME_POSITION]);
-            LocalDateTime endtime = DateHelper.CombineDateAndTime(line[ENDTIME_POSITION]);
-
-            String type = line[TYPE_POSITION];
-            long min = Long.parseLong(line[MIN_POSITION]);
-            long max = Long.parseLong(line[MAX_POSITION]);
-            double sum = Double.parseDouble(line[SUM_POSITION]);
-
-            insertMonitoring(unitid, begintime, endtime, type, min, max, sum);
-
-        }
-
-        System.out.println( tablename.toUpperCase() + " insert Process complete!");
-
-    }
-
-    /**
      * Insert a single monitor record into the database
      * @param unitid
      * @param begintime
@@ -78,7 +53,7 @@ public class Monitoring implements CsvParseable {
      * @param sum
      * @throws SQLException
      */
-    private void insertMonitoring(long unitid, LocalDateTime begintime, LocalDateTime endtime, String type, long min, long max, double sum) throws SQLException {
+    private void insertMonitoring(long unitid, LocalDateTime begintime, LocalDateTime endtime, String type, double min, double max, double sum) throws SQLException {
         Connection con = null;
 
         try
@@ -92,8 +67,8 @@ public class Monitoring implements CsvParseable {
             preparedStatement.setTimestamp(2, Timestamp.valueOf(begintime));
             preparedStatement.setTimestamp(3, Timestamp.valueOf(endtime));
             preparedStatement.setString(4, type);
-            preparedStatement.setLong(5, min);
-            preparedStatement.setLong(6, max);
+            preparedStatement.setDouble(5, min);
+            preparedStatement.setDouble(6, max);
             preparedStatement.setDouble(7, sum);
 
 
@@ -114,4 +89,40 @@ public class Monitoring implements CsvParseable {
     }
 
 
+    public void run() {
+        for(int i=1; i < parseline().size(); i++)
+        {
+            String[] line = parseline().get(i);
+            long unitid = Long.parseLong(line[UNITID_POSITION]);
+
+            LocalDateTime begintime = DateHelper.CombineDateAndTime(line[BEGINTIME_POSITION]);
+            LocalDateTime endtime = DateHelper.CombineDateAndTime(line[ENDTIME_POSITION]);
+
+            String type = line[TYPE_POSITION];
+            double min = Double.parseDouble(line[MIN_POSITION]);
+            double max = Double.parseDouble(line[MAX_POSITION]);
+            double sum = Double.parseDouble(line[SUM_POSITION]);
+
+            try {
+                insertMonitoring(unitid, begintime, endtime, type, min, max, sum);
+                Thread.sleep(50);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        System.out.println( tablename.toUpperCase() + " insert Process complete!");
+    }
+
+    public void start()
+    {
+        if( thread == null )
+        {
+            thread = new Thread(this);
+            thread.start();
+        }
+    }
 }

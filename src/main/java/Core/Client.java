@@ -18,10 +18,29 @@ public class Client {
 
         System.out.println("=========== Project 56 =============");
 
-        new Monitoring().insert();
-        new Connections().insert();
-        new Events().insert();
-        new Positions().insert();
+        try
+        {
+            Connections connections = new Connections();
+            connections.start();
+
+            Events events = new Events();
+            events.start();
+
+            Monitoring monitoring = new Monitoring();
+            monitoring.start();
+
+            Positions positions = new Positions();
+            positions.start();
+
+        }
+        catch (Exception e)
+        {
+            e.printStackTrace();
+        }
+        finally {
+
+        }
+
 
     }
 

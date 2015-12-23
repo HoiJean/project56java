@@ -15,9 +15,12 @@ import java.util.ArrayList;
 /**
  * Created by Jean on 16-12-2015.
  */
-public class Positions implements CsvParseable {
+public class Positions implements CsvParseable, Runnable {
 
     private String filename = "Positions.csv";
+    private String tablename = "positions";
+
+    private Thread thread;
 
     // Connection csv data positions
     private final int DATE_POSITION = 0;
@@ -40,37 +43,6 @@ public class Positions implements CsvParseable {
         return parsedLines;
     }
 
-    public void insert() {
-        for(int i=1; i < parseline().size(); i++)
-        {
-            String[] line = parseline().get(i);
-
-            LocalDateTime datetime = DateHelper.CombineDateAndTime(line[DATE_POSITION]);
-            long unitid = Long.parseLong(line[UNITID_POSITION]);
-            double rdx = Double.parseDouble(line[RDX_POSITION]);
-            double rdy = Double.parseDouble(line[RDY_POSITION]);
-
-            int speed = Integer.parseInt(line[SPEED_POSITION]);
-            int course = Integer.parseInt(line[COURSE_POSITION]);
-            int numsatel = Integer.parseInt(line[NUMSATEL_POSITION]);
-            int hdop = Integer.parseInt(line[HDOP_POSITION]);
-            String quality = line[QUALITY_POSITION];
-
-//            System.out.println("Unit id: " + unitid);
-//            System.out.println("RDX: " + rdx);
-//            System.out.println("RDY: " + rdy);
-
-            try {
-                insertPosition(datetime, unitid, rdx, rdy, speed, course, numsatel, hdop, quality);
-            } catch (SQLException e) {
-                e.printStackTrace();
-            }
-
-        }
-
-        System.out.println("Positions insert Process complete!");
-    }
-
     private void insertPosition(LocalDateTime datetime, long unitid, double rdx, double rdy, int speed, int course, int numsatel, int hdop, String quality) throws SQLException {
         Connection con = null;
 
@@ -78,7 +50,7 @@ public class Positions implements CsvParseable {
         {
             con = Database.getMysqlConnection();
 
-            String query = "INSERT INTO positions(datetime, unit_id, rdx, rdy, speed, course, numsatel, hdop, quality) values(?, ?, ?, ?,?, ?, ?, ?, ?)";
+            String query = "INSERT INTO " + tablename + " (datetime, unit_id, rdx, rdy, speed, course, numsatel, hdop, quality) values(?, ?, ?, ?,?, ?, ?, ?, ?)";
 
             PreparedStatement preparedStatement = con.prepareStatement(query);
             preparedStatement.setTimestamp(1, Timestamp.valueOf(datetime));
@@ -109,9 +81,39 @@ public class Positions implements CsvParseable {
         }
     }
 
-    public static void main(String[] args)
-    {
-        new Positions().insert();
+    public void run() {
+        for(int i=1; i < parseline().size(); i++)
+        {
+            String[] line = parseline().get(i);
+
+            LocalDateTime datetime = DateHelper.CombineDateAndTime(line[DATE_POSITION]);
+            long unitid = Long.parseLong(line[UNITID_POSITION]);
+            double rdx = Double.parseDouble(line[RDX_POSITION]);
+            double rdy = Double.parseDouble(line[RDY_POSITION]);
+
+            int speed = Integer.parseInt(line[SPEED_POSITION]);
+            int course = Integer.parseInt(line[COURSE_POSITION]);
+            int numsatel = Integer.parseInt(line[NUMSATEL_POSITION]);
+            int hdop = Integer.parseInt(line[HDOP_POSITION]);
+            String quality = line[QUALITY_POSITION];
+
+            try {
+                insertPosition(datetime, unitid, rdx, rdy, speed, course, numsatel, hdop, quality);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        System.out.println( tablename.toUpperCase() + " insert Process complete!");
     }
 
+    public void start()
+    {
+        if( thread == null )
+        {
+            thread = new Thread(this);
+            thread.start();
+        }
+    }
 }

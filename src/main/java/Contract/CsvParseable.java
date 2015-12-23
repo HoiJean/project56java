@@ -21,5 +21,4 @@ public interface CsvParseable {
      */
     ArrayList<String[]> parseline();
 
-    void insert() throws SQLException;
 }

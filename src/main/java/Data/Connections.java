@@ -15,11 +15,13 @@ import java.util.ArrayList;
 /**
  * Created by Jean on 16-12-2015.
  */
-public class Connections implements CsvParseable {
+public class Connections implements CsvParseable, Runnable {
 
     protected String filename = "Connections.csv";
 
     protected String tablename = "connections";
+
+    private Thread thread;
 
     // Connections/events csv data positions
     private final int DATE_POSITION = 0;
@@ -63,29 +65,6 @@ public class Connections implements CsvParseable {
     }
 
     /**
-     * Bulk insert
-     * @throws SQLException
-     */
-    public void insert() throws SQLException {
-
-        for(int i=1; i < parseline().size(); i++)
-        {
-            String[] line = parseline().get(i);
-
-            LocalDateTime datetime = DateHelper.CombineDateAndTime(line[DATE_POSITION]);
-            String port = line[PORT_POSITION];
-            int value = Integer.parseInt(line[VALUE_POSITION]);
-            long unitid = Long.parseLong(line[UNITID_POSITION]);
-
-           insertConnection(datetime, port, value, unitid);
-
-        }
-
-        System.out.println( tablename.toUpperCase() + " insert Process complete!");
-
-    }
-
-    /**
      * Insert a single connection into the database
      * @param datetime
      * @param port
@@ -124,4 +103,36 @@ public class Connections implements CsvParseable {
         }
     }
 
+    public void run() {
+        for(int i=1; i < parseline().size(); i++)
+        {
+            String[] line = parseline().get(i);
+
+            LocalDateTime datetime = DateHelper.CombineDateAndTime(line[DATE_POSITION]);
+            String port = line[PORT_POSITION];
+            int value = Integer.parseInt(line[VALUE_POSITION]);
+            long unitid = Long.parseLong(line[UNITID_POSITION]);
+
+            try {
+                insertConnection(datetime, port, value, unitid);
+                Thread.sleep(50);
+            } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+
+        }
+
+        System.out.println( tablename.toUpperCase() + " insert Process complete!");
+    }
+
+    public void start()
+    {
+        if( thread == null)
+        {
+            thread = new Thread(this);
+            thread.start();
+        }
+    }
 }
