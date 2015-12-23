@@ -99,7 +99,10 @@ public class Positions implements CsvParseable, Runnable {
 
             try {
                 insertPosition(datetime, unitid, rdx, rdy, speed, course, numsatel, hdop, quality);
+                Thread.sleep(50);
             } catch (SQLException e) {
+                e.printStackTrace();
+            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 

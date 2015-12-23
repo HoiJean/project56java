@@ -5,6 +5,7 @@ import Data.Events;
 import Data.Monitoring;
 import Data.Positions;
 
+import javax.swing.*;
 import java.sql.SQLException;
 import java.text.ParseException;
 
@@ -17,9 +18,13 @@ public class Client {
     public static void main(String[] args) throws ParseException, SQLException {
 
         System.out.println("=========== Project 56 =============");
+        JOptionPane.showMessageDialog(null, "CityGis");
 
         try
         {
+            Positions positions = new Positions();
+            positions.start();
+
             Connections connections = new Connections();
             connections.start();
 
@@ -29,8 +34,7 @@ public class Client {
             Monitoring monitoring = new Monitoring();
             monitoring.start();
 
-            Positions positions = new Positions();
-            positions.start();
+
 
         }
         catch (Exception e)
