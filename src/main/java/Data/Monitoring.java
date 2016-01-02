@@ -32,12 +32,15 @@ public class Monitoring implements CsvParseable, Runnable {
     private final int MAX_POSITION = 5;
     private final int SUM_POSITION = 6;
 
+    private ArrayList<String[]> parsedLines = null;
+    private boolean alreadyParsed = false;
+
     public String getFile() {
         return filename;
     }
 
     public ArrayList<String[]> parseline() {
-        ArrayList<String[]> parsedLines = new CsvParser().parseCSV(getFile());
+        parsedLines = new CsvParser().parseCSV(getFile());
 
         return parsedLines;
     }
@@ -90,9 +93,18 @@ public class Monitoring implements CsvParseable, Runnable {
 
 
     public void run() {
-        for(int i=1; i < parseline().size(); i++)
+        if(!alreadyParsed)
         {
-            String[] line = parseline().get(i);
+            parseline();
+            alreadyParsed = true;
+        }
+
+        System.out.println("Start Monitoring insert process " + parsedLines.size());
+        int lineCount = parsedLines.size();
+
+        for(int i=1; i < lineCount; i++)
+        {
+            String[] line = parsedLines.get(i);
             long unitid = Long.parseLong(line[UNITID_POSITION]);
 
             LocalDateTime begintime = DateHelper.CombineDateAndTime(line[BEGINTIME_POSITION]);
@@ -119,10 +131,21 @@ public class Monitoring implements CsvParseable, Runnable {
 
     public void start()
     {
+
         if( thread == null )
         {
-            thread = new Thread(this);
-            thread.start();
+            System.out.println("Start Monitoring Thread");
+            try
+            {
+                thread = new Thread(new Monitoring());
+//                thread.setPriority(Thread.MAX_PRIORITY);
+                thread.start();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
+
     }
 }

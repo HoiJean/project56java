@@ -32,20 +32,20 @@ public class Positions implements CsvParseable, Runnable {
     private final int NUMSATEL_POSITION = 6;
     private final int HDOP_POSITION = 7;
     private final int QUALITY_POSITION = 8;
+    private ArrayList<String[]> parsedLines = null;
+    protected boolean alreadyParsed = false;
 
     public String getFile() {
         return filename;
     }
 
     public ArrayList<String[]> parseline() {
-        ArrayList<String[]> parsedLines = new CsvParser().parseCSV(getFile());
-
+        parsedLines = new CsvParser().parseCSV(getFile());
         return parsedLines;
     }
 
     private void insertPosition(LocalDateTime datetime, long unitid, double rdx, double rdy, int speed, int course, int numsatel, int hdop, String quality) throws SQLException {
         Connection con = null;
-
         try
         {
             con = Database.getMysqlConnection();
@@ -66,7 +66,6 @@ public class Positions implements CsvParseable, Runnable {
             preparedStatement.setString(9, quality);
 
             preparedStatement.execute();
-
         }
         catch (SQLException ex)
         {
@@ -82,9 +81,20 @@ public class Positions implements CsvParseable, Runnable {
     }
 
     public void run() {
-        for(int i=1; i < parseline().size(); i++)
+
+        if(!alreadyParsed)
         {
-            String[] line = parseline().get(i);
+            parseline();
+            alreadyParsed = true;
+        }
+
+        System.out.println("Start Positions insert process " + parsedLines.size());
+        int lineCount = parsedLines.size();
+
+        for(int i=1; i < lineCount; i++)
+        {
+//            System.out.println("Inserting...");
+            String[] line = parsedLines.get(i);
 
             LocalDateTime datetime = DateHelper.CombineDateAndTime(line[DATE_POSITION]);
             long unitid = Long.parseLong(line[UNITID_POSITION]);
@@ -99,10 +109,8 @@ public class Positions implements CsvParseable, Runnable {
 
             try {
                 insertPosition(datetime, unitid, rdx, rdy, speed, course, numsatel, hdop, quality);
-                Thread.sleep(50);
+//                Thread.sleep(50);
             } catch (SQLException e) {
-                e.printStackTrace();
-            } catch (InterruptedException e) {
                 e.printStackTrace();
             }
 
@@ -113,10 +121,21 @@ public class Positions implements CsvParseable, Runnable {
 
     public void start()
     {
+
         if( thread == null )
         {
-            thread = new Thread(this);
-            thread.start();
+            System.out.println("Start Positions Thread");
+            try
+            {
+                thread = new Thread(new Positions());
+//                thread.setPriority(Thread.MAX_PRIORITY);
+                thread.start();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
+
     }
 }

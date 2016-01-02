@@ -21,7 +21,10 @@ public class Connections implements CsvParseable, Runnable {
 
     protected String tablename = "connections";
 
-    private Thread thread;
+    private ArrayList<String[]> parsedLines = null;
+    private boolean alreadyParsed = false;
+
+    protected Thread thread;
 
     // Connections/events csv data positions
     private final int DATE_POSITION = 0;
@@ -46,9 +49,6 @@ public class Connections implements CsvParseable, Runnable {
         this.filename = filename;
     }
 
-    public String getTablename() {
-        return tablename;
-    }
 
     public void setTablename(String tablename) {
         this.tablename = tablename;
@@ -59,7 +59,7 @@ public class Connections implements CsvParseable, Runnable {
     }
 
     public ArrayList<String[]> parseline() {
-        ArrayList<String[]> parsedLines = new CsvParser().parseCSV(getFile());
+        parsedLines = new CsvParser().parseCSV(getFile());
 
         return parsedLines;
     }
@@ -104,9 +104,19 @@ public class Connections implements CsvParseable, Runnable {
     }
 
     public void run() {
-        for(int i=1; i < parseline().size(); i++)
+
+        if(!alreadyParsed)
         {
-            String[] line = parseline().get(i);
+            parseline();
+            alreadyParsed = true;
+        }
+
+        System.out.println("Start Connections insert process " + parsedLines.size());
+        int lineCount = parsedLines.size();
+
+        for(int i=1; i < lineCount; i++)
+        {
+            String[] line = parsedLines.get(i);
 
             LocalDateTime datetime = DateHelper.CombineDateAndTime(line[DATE_POSITION]);
             String port = line[PORT_POSITION];
@@ -129,10 +139,21 @@ public class Connections implements CsvParseable, Runnable {
 
     public void start()
     {
-        if( thread == null)
+
+        if( thread == null )
         {
-            thread = new Thread(this);
-            thread.start();
+            System.out.println("Start Connections Thread");
+            try
+            {
+                thread = new Thread(new Connections());
+//                thread.setPriority(Thread.MAX_PRIORITY);
+                thread.start();
+            }
+            catch (Exception e)
+            {
+                e.printStackTrace();
+            }
         }
+
     }
 }

@@ -34,8 +34,6 @@ public class Client {
             Monitoring monitoring = new Monitoring();
             monitoring.start();
 
-
-
         }
         catch (Exception e)
         {

@@ -15,7 +15,7 @@ public class CsvParser {
 
     public ArrayList<String[]> parseCSV(String csvFile)
     {
-
+        System.out.println("Parsing csv file");
         BufferedReader bufferedReader = null;
         String line;
 
@@ -25,14 +25,20 @@ public class CsvParser {
 
         try
         {
-            bufferedReader = new BufferedReader(new FileReader(csvFile));
-
+            bufferedReader = new BufferedReader(new FileReader(csvFile), 1024);
 
             while ( (line = bufferedReader.readLine()) != null)
             {
-                data = line.split(SPLIT_BY);
+                try
+                {
+                    data = line.split(SPLIT_BY);
+                    output.add(data);
+                }
+                catch (OutOfMemoryError e)
+                {
+                    e.printStackTrace();
+                }
 
-                output.add(data);
             }
         }
         catch (FileNotFoundException e)
@@ -58,6 +64,7 @@ public class CsvParser {
             }
         }
 
+        System.out.println("Done parsing");
 
         return output;
     }
