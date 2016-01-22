@@ -9,7 +9,7 @@ import java.time.format.DateTimeFormatter;
  * Created by Jean on 14-12-2015.
  */
 public class DateHelper {
-
+    
     public static LocalDateTime mergeDateAndTime(String date, String time)
     {
         LocalDate localDate = LocalDate.parse(date);
